@@ -1,37 +1,15 @@
 import { useRef, useState } from "react";
-import { Animated, Button, FlatList, StyleSheet, View } from "react-native";
+import { Animated, FlatList } from "react-native";
+import { Box, Button, HStack } from "native-base";
 
-import colors from "../../config/colors";
+import onboardingSlides from "../../config/onboarding";
 import OnboardingItem from "../../components/onboarding/Item";
 import Paginator from "../../components/onboarding/Paginator";
 import Screen from "../../components/Screen";
 
-const slides = [
-  {
-    id: 1,
-    title: "Your Serkl",
-    description:
-      "A Serkl for family, for people with common interests, for specific events",
-    image: require("../../assets/onboarding-1.png"),
-  },
-  {
-    id: 2,
-    title: "Events",
-    description:
-      "Set up an event, invite interested people, discuss about the event and send important updates",
-    image: require("../../assets/onboarding-2.png"),
-  },
-  {
-    id: 3,
-    title: "Explore",
-    description:
-      "Explore events of your interest in your locality, join any event, get notified about the updates.",
-    image: require("../../assets/onboarding-3.png"),
-  },
-];
-
 export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const isLastSlide = currentIndex == onboardingSlides.length - 1;
   const scrollX = useRef(new Animated.Value(0)).current;
   const slidesRef = useRef(null);
 
@@ -42,7 +20,7 @@ export default function OnboardingScreen() {
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const handleNextClick = () => {
-    if (currentIndex < slides.length - 1) {
+    if (currentIndex < onboardingSlides.length - 1) {
       slidesRef.current.scrollToIndex({ index: currentIndex + 1 });
     } else {
       console.log("Last item");
@@ -51,10 +29,10 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
-        <View style={styles.detailsContainer}>
+      <Box alignItems="center" pt={2} flex={1} width="full">
+        <Box flex={3}>
           <FlatList
-            data={slides}
+            data={onboardingSlides}
             renderItem={({ item }) => <OnboardingItem item={item} />}
             horizontal
             pagingEnabled
@@ -70,37 +48,27 @@ export default function OnboardingScreen() {
             viewabilityConfig={viewConfig}
             ref={slidesRef}
           />
-        </View>
+        </Box>
         <Paginator
-          data={slides}
+          data={onboardingSlides}
           scrollX={scrollX}
           currentIndex={currentIndex}
         />
-        <View style={styles.buttonContainer}>
-          <Button color={colors.dark} title="Skip" />
-          <Button color={colors.dark} title="Next" onPress={handleNextClick} />
-        </View>
-      </View>
+        <Box mt={7} mb={5} px={5} width="full">
+          <HStack space={2} justifyContent="space-between">
+            <Button size="md" variant="link">
+              {isLastSlide ? " " : "Skip"}
+            </Button>
+            <Button
+              size="md"
+              variant={!isLastSlide ? "link" : "subtle"}
+              onPress={handleNextClick}
+            >
+              {isLastSlide ? "Finish" : "Next"}
+            </Button>
+          </HStack>
+        </Box>
+      </Box>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    paddingTop: 10,
-    flex: 1,
-    width: "100%",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginTop: 30,
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  detailsContainer: {
-    flex: 3,
-  },
-});
